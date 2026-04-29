@@ -78,5 +78,5 @@ SCANNER CODES-BARRES
 CONTACT / SOUMISSION
 ---------------------
 Rapport PDF à envoyer à : programmationwebphp@gmail.com
-Code source sur GitHub : https://github.com/[votre-repo]
+Code source sur GitHub : https://github.com/[Php-facturation]
 ===========================================================
