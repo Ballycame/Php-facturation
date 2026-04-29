@@ -1,0 +1,601 @@
+\documentclass[12pt,a4paper]{report}
+
+% ── Encodage et langue (XeLaTeX) ────────────────────────────────
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{french}
+\setmainfont{DejaVu Serif}
+\setmonofont{DejaVu Sans Mono}
+
+% ── Mise en page ────────────────────────────────────────────────
+\usepackage[top=2.5cm,bottom=2.5cm,left=3cm,right=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ── Couleurs ────────────────────────────────────────────────────
+\usepackage{xcolor}
+\definecolor{accentColor}{HTML}{D4A017}
+\definecolor{darkGray}{HTML}{2D2D2D}
+\definecolor{codeGray}{HTML}{F5F5F5}
+\definecolor{linkColor}{HTML}{1A56A0}
+
+% ── Hyperliens ──────────────────────────────────────────────────
+\usepackage[colorlinks=true,linkcolor=linkColor,urlcolor=linkColor]{hyperref}
+
+% ── En-têtes et pieds de page ───────────────────────────────────
+\usepackage{fancyhdr}
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Système de Facturation PHP -- UPC 2025-2026}}
+\fancyhead[R]{\small\thepage}
+\fancyfoot[C]{\small\textit{Travaux Pratiques -- Programmation Web PHP}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% ── Code source ─────────────────────────────────────────────────
+\usepackage{listings}
+\lstset{
+  basicstyle=\footnotesize\ttfamily,
+  backgroundcolor=\color{codeGray},
+  frame=single,
+  framesep=4pt,
+  rulecolor=\color{gray!40},
+  keywordstyle=\color{blue!70}\bfseries,
+  commentstyle=\color{green!50!black}\itshape,
+  stringstyle=\color{red!60!black},
+  breaklines=true,
+  tabsize=4,
+  showstringspaces=false,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+}
+
+% ── Tableaux ────────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% ── Figures ─────────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning}
+
+% ── Listes ──────────────────────────────────────────────────────
+\usepackage{enumitem}
+
+% ── Boîtes colorées ─────────────────────────────────────────────
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{notebox}{
+  colback=accentColor!10,colframe=accentColor,
+  fonttitle=\bfseries, title=Remarque,
+  breakable
+}
+\newtcolorbox{warningbox}{
+  colback=red!5,colframe=red!60!black,
+  fonttitle=\bfseries, title=Attention,
+  breakable
+}
+
+% ───────────────────────────────────────────────────────────────
+\begin{document}
+
+% ╔═══════════════════════════════╗
+% ║       PAGE DE GARDE          ║
+% ╚═══════════════════════════════╝
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+
+  {\Large\bfseries Université Protestante au Congo}\\[0.4cm]
+  {\large Faculté de Sciences Informatiques}\\[0.2cm]
+  {\large Département Informatique -- L2 FASI}\\[2cm]
+
+  \rule{\linewidth}{1.5pt}\\[0.5cm]
+  {\huge\bfseries\color{darkGray} Système de Facturation}\\[0.4cm]
+  {\Large avec Lecture de Codes-Barres}\\[0.3cm]
+  \rule{\linewidth}{1.5pt}\\[1.5cm]
+
+  {\large\textit{Travaux Pratiques de Programmation Web en PHP}}\\[0.3cm]
+  {\normalsize Programmation Procédurale -- Gestion de Fichiers -- Contrôle d'Accès}\\[2cm]
+
+  \begin{tabular}{ll}
+    \textbf{Auteurs :}        & [Étudiant 1 -- Nom Prénom]          \\[0.2cm]
+                              & [Étudiant 2 -- Nom Prénom]          \\[0.2cm]
+                              & [Étudiant 3 -- Nom Prénom]          \\[0.6cm]
+    \textbf{Niveau :}         & Licence 2 -- FASI                   \\[0.2cm]
+    \textbf{Matière :}        & Programmation Web en PHP            \\[0.2cm]
+    \textbf{Enseignant :}     & [Nom de l'enseignant]               \\[0.2cm]
+    \textbf{Année :}          & 2025 -- 2026                        \\[0.2cm]
+    \textbf{Date de remise :} & 24 Avril 2026                       \\
+  \end{tabular}
+
+  \vfill
+  {\small Code source disponible sur GitHub :
+  \url{https://github.com/[votre-repo]/facturation}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ╔═══════════════════════════════╗
+% ║     CHAPITRE 1 : INTRO       ║
+% ╚═══════════════════════════════╝
+\chapter{Introduction}
+
+\section{Présentation du projet}
+
+Ce projet consiste en la conception et le développement d'un système de caisse
+informatisé pour un supermarché de taille modeste. L'objectif principal est de
+remplacer la saisie manuelle des articles -- source d'erreurs et de lenteur -- par
+un système de lecture automatique de codes-barres via la caméra d'un téléphone ou
+d'un ordinateur.
+
+Le système est entièrement développé en \textbf{PHP procédural}, sans recours à
+aucun système de gestion de base de données. La persistance des données repose
+exclusivement sur des fichiers au format JSON, ce qui garantit une portabilité
+maximale et facilite le déploiement sur des serveurs d'hébergement simples.
+
+\section{Contexte}
+
+Le gérant du supermarché souhaitait moderniser son processus de vente afin de :
+\begin{itemize}
+  \item Réduire les erreurs de saisie commises par les caissiers ;
+  \item Accélérer les transactions à la caisse ;
+  \item Disposer d'un historique structuré des ventes ;
+  \item Contrôler en temps réel les niveaux de stock.
+\end{itemize}
+
+La contrainte budgétaire imposait l'absence de base de données externe, rendant
+obligatoire l'utilisation de fichiers comme mécanisme de persistance.
+
+\section{Objectifs pédagogiques}
+
+Ce travail pratique nous a permis de mettre en oeuvre les compétences suivantes :
+\begin{enumerate}
+  \item Concevoir une application PHP selon le paradigme \textbf{procédural} ;
+  \item Utiliser les \textbf{fichiers JSON} comme base de données légère ;
+  \item Implémenter un \textbf{contrôle d'accès basé sur les rôles} (RBAC) ;
+  \item Intégrer la bibliothèque JavaScript \textbf{QuaggaJS} pour la lecture de codes-barres ;
+  \item Appliquer les bonnes pratiques de \textbf{validation et d'assainissement} des données ;
+  \item Rédiger un rapport technique structuré en \LaTeX{}.
+\end{enumerate}
+
+% ╔═══════════════════════════════╗
+% ║  CHAPITRE 2 : STRUCTURE      ║
+% ╚═══════════════════════════════╝
+\chapter{Structure du Projet}
+
+\section{Arborescence commentée}
+
+L'arborescence du projet suit une organisation modulaire qui sépare clairement les
+responsabilités : configuration, authentification, modules fonctionnels, données,
+fonctions réutilisables et ressources statiques.
+
+\begin{lstlisting}[caption={Arborescence du projet}]
+facturation/
+|-- index.php                   Tableau de bord principal
+|-- README.txt                  Instructions de deploiement
+|-- config/
+|   `-- config.php              Constantes globales : TVA, chemins, roles
+|-- auth/
+|   |-- login.php               Formulaire d'authentification
+|   |-- logout.php              Destruction de session et redirection
+|   `-- session.php             Gestion des sessions et controle d'acces
+|-- modules/
+|   |-- produits/
+|   |   |-- enregistrer.php     Enregistrement / MAJ d'un produit
+|   |   |-- lire.php            API AJAX : lecture produit par code-barres
+|   |   `-- liste.php           Catalogue avec gestion du stock
+|   |-- facturation/
+|   |   |-- nouvelle-facture.php  Interface de caisse
+|   |   |-- calcul.php            API AJAX : calcul des totaux
+|   |   `-- afficher-facture.php  Affichage et impression
+|   `-- admin/
+|       |-- gestion-comptes.php   Liste des comptes utilisateurs
+|       |-- ajouter-compte.php    Creation d'un nouveau compte
+|       `-- supprimer-compte.php  Desactivation avec confirmation
+|-- data/
+|   |-- produits.json           Catalogue produits (persistance)
+|   |-- factures.json           Historique des factures (persistance)
+|   `-- utilisateurs.json       Comptes utilisateurs avec hash bcrypt
+|-- includes/
+|   |-- header.php              En-tete HTML commun
+|   |-- footer.php              Pied de page HTML commun
+|   |-- fonctions-produits.php  CRUD produits, validation, stock
+|   |-- fonctions-factures.php  Creation, calculs, lecture des factures
+|   `-- fonctions-auth.php      Authentification, CRUD utilisateurs
+|-- assets/
+|   |-- css/style.css           Feuille de style principale (theme sombre)
+|   `-- js/scanner.js           Encapsulation QuaggaJS
+`-- rapports/
+    |-- rapport-journalier.php  Rapport des ventes du jour
+    |-- rapport-mensuel.php     Rapport des ventes par mois
+    `-- rapport.tex             Rapport technique (ce document)
+\end{lstlisting}
+
+\section{Description détaillée des fichiers}
+
+\subsection{Fichier \texttt{config/config.php}}
+Ce fichier centralise toutes les constantes de l'application : taux de TVA (18\,\%),
+chemins absolus vers les fichiers de données, noms des rôles, hiérarchie des rôles
+et préfixe des identifiants de facture. Son inclusion en premier dans chaque script
+garantit la cohérence des paramètres à travers toute l'application.
+
+\subsection{Fichier \texttt{auth/session.php}}
+Il gère le cycle de vie de la session PHP. Ses fonctions clés sont :
+\begin{itemize}
+  \item \texttt{verifier\_connecte()} : redirige vers la page de connexion si aucune session n'est active ;
+  \item \texttt{verifier\_role(\$role)} : vérifie que l'utilisateur possède le niveau de permission suffisant ;
+  \item \texttt{a\_role(\$role)} : retourne un booléen, utilisé dans les vues pour afficher conditionnellement les menus ;
+  \item Les fonctions \texttt{chemin\_base()}, \texttt{chemin\_auth()}, \texttt{chemin\_module()} calculent les chemins relatifs HTML depuis n'importe quel sous-répertoire.
+\end{itemize}
+
+\subsection{Fichier \texttt{includes/fonctions-produits.php}}
+Contient la logique métier liée aux produits :
+\texttt{charger\_produits()}, \texttt{sauvegarder\_produits()}, \texttt{trouver\_produit()},
+\texttt{enregistrer\_produit()}, \texttt{decrementer\_stock()}, \texttt{modifier\_stock()},
+\texttt{valider\_produit()} et \texttt{formater\_prix()}.
+
+\subsection{Fichier \texttt{includes/fonctions-factures.php}}
+Gère la création et la lecture des factures :
+\texttt{charger\_factures()}, \texttt{sauvegarder\_factures()}, \texttt{generer\_id\_facture()},
+\texttt{calculer\_totaux()}, \texttt{creer\_facture()}, \texttt{trouver\_facture()},
+\texttt{factures\_du\_jour()} et \texttt{factures\_du\_mois()}.
+
+\subsection{Fichier \texttt{modules/facturation/calcul.php}}
+Point de terminaison AJAX appelé depuis l'interface de caisse pour valider les articles
+et calculer les totaux côté serveur avant l'enregistrement définitif. Ce double
+contrôle serveur évite toute manipulation côté client.
+
+\subsection{Fichier \texttt{assets/js/scanner.js}}
+Module JavaScript qui encapsule QuaggaJS. Il expose \texttt{initScanner(containerId,
+onDetected, statusId)} et \texttt{stopScanner()}. Pour éviter les faux positifs,
+un code-barres n'est confirmé qu'après \textbf{trois lectures identiques consécutives}.
+
+% ╔═══════════════════════════════╗
+% ║  CHAPITRE 3 : DONNÉES        ║
+% ╚═══════════════════════════════╝
+\chapter{Structures de Données}
+
+\section{Justification du format JSON}
+
+Le format JSON a été retenu pour plusieurs raisons :
+\begin{enumerate}
+  \item \textbf{Lisibilité humaine} : les fichiers peuvent être inspectés et modifiés manuellement ;
+  \item \textbf{Support natif en PHP} : \texttt{json\_encode()} et \texttt{json\_decode()} sans extension externe ;
+  \item \textbf{Portabilité} : aucune dépendance à un serveur de base de données ;
+  \item \textbf{Structures hiérarchiques} : les articles d'une facture sont imbriqués directement, sans jointures.
+\end{enumerate}
+
+\begin{notebox}
+  Les fichiers JSON sont écrits avec \texttt{JSON\_PRETTY\_PRINT} pour la lisibilité
+  et \texttt{JSON\_UNESCAPED\_UNICODE} pour préserver les caractères accentués.
+\end{notebox}
+
+\section{Structure d'un produit}
+
+\begin{lstlisting}[language=,caption={Structure JSON d'un produit}]
+{
+  "code_barre":          "3017620422003",
+  "nom":                 "Huile de palme 1L",
+  "prix_unitaire_ht":    1200,
+  "date_expiration":     "2027-12-31",
+  "quantite_stock":      50,
+  "date_enregistrement": "2026-04-17"
+}
+\end{lstlisting}
+
+Le champ \texttt{code\_barre} sert de clé primaire implicite.
+
+\section{Structure d'une facture}
+
+\begin{lstlisting}[language=,caption={Structure JSON d'une facture}]
+{
+  "id_facture": "FAC-20260417-001",
+  "date":       "2026-04-17",
+  "heure":      "10:35:22",
+  "caissier":   "caissier.demo",
+  "articles": [
+    {
+      "code_barre":       "3017620422003",
+      "nom":              "Huile de palme 1L",
+      "prix_unitaire_ht": 1200,
+      "quantite":         2,
+      "sous_total_ht":    2400
+    }
+  ],
+  "total_ht":  2400,
+  "tva":        432,
+  "total_ttc": 2832
+}
+\end{lstlisting}
+
+L'identifiant est généré au format \texttt{FAC-AAAAMMJJ-NNN}, où \texttt{NNN}
+est un compteur journalier sur trois chiffres, garantissant l'unicité sans table de séquence.
+
+\section{Structure d'un utilisateur}
+
+\begin{lstlisting}[language=,caption={Structure JSON d'un utilisateur}]
+{
+  "identifiant":    "jean.mbeki",
+  "mot_de_passe":   "$2y$10$...",
+  "role":           "caissier",
+  "nom_complet":    "Jean Mbeki",
+  "date_creation":  "2026-04-17",
+  "actif":          true
+}
+\end{lstlisting}
+
+Le mot de passe est haché via \texttt{password\_hash(\$mdp, PASSWORD\_DEFAULT)}
+(algorithme bcrypt, coût 10). Le champ \texttt{actif} permet une suppression logique.
+
+% ╔═══════════════════════════════╗
+% ║  CHAPITRE 4 : MODULES        ║
+% ╚═══════════════════════════════╝
+\chapter{Description des Modules}
+
+\section{Module d'authentification}
+
+\subsection{Mécanisme de connexion}
+La page \texttt{auth/login.php} reçoit les identifiants via POST. La fonction
+\texttt{authentifier\_utilisateur()} parcourt le fichier JSON et appelle
+\texttt{password\_verify()} pour chaque entrée correspondante. Si l'authentification
+réussit, les données de l'utilisateur (sans le hash) sont stockées dans
+\texttt{\$\_SESSION['utilisateur']}.
+
+\subsection{Protection des pages}
+Chaque script inclut \texttt{auth/session.php} et appelle \texttt{verifier\_role(\$role\_minimum)}.
+La hiérarchie numérique permet une comparaison simple :
+
+\begin{lstlisting}[language=PHP,caption={Hiérarchie des rôles}]
+define('ROLES_HIERARCHIE', [
+    ROLE_CAISSIER   => 1,
+    ROLE_MANAGER    => 2,
+    ROLE_SUPERADMIN => 3,
+]);
+\end{lstlisting}
+
+\section{Module d'enregistrement des produits}
+
+\subsection{Flux de traitement}
+\begin{enumerate}
+  \item Le Manager active la caméra -- QuaggaJS lit le code-barres ;
+  \item Le JavaScript redirige vers \texttt{enregistrer.php?code=...} ;
+  \item PHP appelle \texttt{trouver\_produit(\$code)} ;
+  \item Si inconnu : formulaire vierge ; si connu : formulaire pré-rempli ;
+  \item À la soumission : \texttt{valider\_produit()} puis \texttt{enregistrer\_produit()}.
+\end{enumerate}
+
+\subsection{Validation des données}
+La fonction \texttt{valider\_produit()} vérifie : code-barres non vide, nom non vide,
+prix numérique et positif, quantité non négative, date au format \texttt{AAAA-MM-JJ}
+via \texttt{checkdate()}.
+
+\section{Module de facturation}
+
+\subsection{Architecture côté client}
+L'interface utilise un tableau JavaScript \texttt{articles[]} qui s'accumule au fil
+des scans. Chaque ajout déclenche le recalcul des totaux en temps réel, sans rechargement
+de page. À la validation, le tableau est sérialisé en JSON et envoyé au serveur.
+
+\subsection{Calcul des montants}
+
+\begin{lstlisting}[language=PHP,caption={Calcul des totaux}]
+function calculer_totaux(array $articles): array {
+    $total_ht = array_sum(array_column($articles, 'sous_total_ht'));
+    $tva      = round($total_ht * TAUX_TVA);
+    return [
+        'total_ht'  => $total_ht,
+        'tva'       => $tva,
+        'total_ttc' => $total_ht + $tva,
+    ];
+}
+\end{lstlisting}
+
+\subsection{Format d'affichage d'une facture}
+
+\begin{center}
+\begin{tabular}{L{4cm} r r r}
+  \toprule
+  \textbf{Désignation} & \textbf{Prix HT} & \textbf{Qté} & \textbf{Sous-total HT} \\
+  \midrule
+  Huile de palme 1L    & 1\,200 CDF       & 2            & 2\,400 CDF             \\
+  Savon de Marseille   & 450 CDF          & 5            & 2\,250 CDF             \\
+  \midrule
+  \multicolumn{3}{r}{Total HT}   & 4\,650 CDF \\
+  \multicolumn{3}{r}{TVA (18\%)} & 837 CDF    \\
+  \midrule
+  \multicolumn{3}{r}{\textbf{Net à payer}} & \textbf{5\,487 CDF} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Protection du stock}
+Avant l'enregistrement, le serveur re-vérifie le stock de chaque article. Si insuffisant,
+la transaction est bloquée. Le stock est décrémenté \emph{après} cette vérification dans
+\texttt{decrementer\_stock()}.
+
+\section{Module d'administration des comptes}
+
+\subsection{Tableau des rôles et permissions}
+
+\begin{center}
+\begin{tabular}{L{2.5cm} L{9cm}}
+  \toprule
+  \textbf{Rôle} & \textbf{Permissions} \\
+  \midrule
+  Caissier  & Lecture codes-barres, création et consultation de factures \\
+  Manager   & Idem + enregistrement produits, gestion stock, rapports \\
+  Super Admin & Idem + création et désactivation de comptes utilisateurs \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Sécurité des mots de passe}
+La création d'un compte appelle \texttt{password\_hash(\$mdp, PASSWORD\_DEFAULT)}.
+En PHP 8, \texttt{PASSWORD\_DEFAULT} correspond à bcrypt (coût 10), résistant aux
+attaques par force brute et aux tables arc-en-ciel.
+
+% ╔═══════════════════════════════╗
+% ║  CHAPITRE 5 : FLUX           ║
+% ╚═══════════════════════════════╝
+\chapter{Diagramme de Flux}
+
+\section{Transaction de vente -- vue d'ensemble}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=1.1cm,
+  startstop/.style={rectangle, rounded corners=6pt, draw=green!60!black,
+    fill=green!10, minimum width=3.8cm, minimum height=0.75cm, font=\small\bfseries, align=center},
+  process/.style={rectangle, draw=blue!60!black, fill=blue!8,
+    minimum width=4cm, minimum height=0.75cm, font=\small, align=center},
+  decision/.style={diamond, aspect=2.8, draw=orange!80!black, fill=orange!10,
+    font=\scriptsize, inner sep=1pt, align=center},
+  arrow/.style={-Stealth, thick}
+]
+
+\node[startstop] (start)  {Caissier active\\le scanner};
+\node[process,   below=of start]   (scan)   {QuaggaJS lit\\le code-barres};
+\node[decision,  below=of scan]    (connu)  {Produit\\connu ?};
+\node[process,   right=3cm of connu]  (msg)   {Message :\\enregistrer\\d'abord};
+\node[process,   below=of connu]   (affiche){Afficher nom\\et prix HT};
+\node[process,   below=of affiche] (qte)    {Saisir la\\quantité};
+\node[decision,  below=of qte]     (stock)  {Stock\\suffisant ?};
+\node[process,   right=3cm of stock]  (alerte){Alerte\\stock};
+\node[process,   below=of stock]   (ajout)  {Ajouter à\\la facture};
+\node[decision,  below=of ajout]   (autre)  {Autre\\article ?};
+\node[process,   below=of autre]   (valide) {Valider\\la facture};
+\node[process,   below=of valide]  (dec)    {Décrémenter\\les stocks};
+\node[process,   below=of dec]     (save)   {Sauvegarder\\factures.json};
+\node[startstop, below=of save]    (fin)    {Afficher /\\imprimer};
+
+\draw[arrow] (start) -- (scan);
+\draw[arrow] (scan) -- (connu);
+\draw[arrow] (connu) -- node[left,font=\scriptsize]{Oui} (affiche);
+\draw[arrow] (connu) -- node[above,font=\scriptsize]{Non} (msg);
+\draw[arrow] (affiche) -- (qte);
+\draw[arrow] (qte) -- (stock);
+\draw[arrow] (stock) -- node[left,font=\scriptsize]{Oui} (ajout);
+\draw[arrow] (stock) -- node[above,font=\scriptsize]{Non} (alerte);
+\draw[arrow] (ajout) -- (autre);
+\draw[arrow] (autre) -- node[left,font=\scriptsize]{Non} (valide);
+\draw[arrow] (autre.east) to[out=0,in=0,looseness=2] node[right,font=\scriptsize]{Oui} (scan.east);
+\draw[arrow] (valide) -- (dec);
+\draw[arrow] (dec) -- (save);
+\draw[arrow] (save) -- (fin);
+
+\end{tikzpicture}
+\caption{Flux complet d'une transaction de vente}
+\end{figure}
+
+% ╔═══════════════════════════════╗
+% ║  CHAPITRE 6 : DIFFICULTÉS    ║
+% ╚═══════════════════════════════╝
+\chapter{Difficultés Rencontrées et Solutions}
+
+\section{Faux positifs du scanner de codes-barres}
+
+\textbf{Problème :} QuaggaJS déclenchait le callback plusieurs fois pour un même
+code-barres en quelques millisecondes, causant des doublons dans la facture.
+
+\textbf{Solution :} Un tampon de lectures (buffer) est implémenté dans \texttt{scanner.js}.
+Le code n'est confirmé qu'après \textbf{trois lectures identiques consécutives}
+(\texttt{THRESHOLD = 3}). Le buffer est réinitialisé après chaque confirmation.
+
+\section{Gestion des chemins relatifs multi-niveaux}
+
+\textbf{Problème :} Les inclusions PHP et les liens HTML devaient fonctionner depuis
+des fichiers à différents niveaux de profondeur dans l'arborescence.
+
+\textbf{Solution :} Utilisation de \texttt{\_\_DIR\_\_} pour les inclusions PHP
+(chemin absolu du fichier courant) et fonctions utilitaires \texttt{chemin\_base()},
+\texttt{chemin\_auth()}, \texttt{chemin\_module()} dans \texttt{session.php} pour
+les liens HTML.
+
+\section{Accès à la caméra en HTTP}
+
+\textbf{Problème :} Les navigateurs modernes bloquent l'accès à la caméra sur HTTP
+non sécurisé, sauf sur \texttt{localhost}.
+
+\textbf{Solution :} En développement, \texttt{localhost} contourne la restriction.
+En production, un certificat TLS (HTTPS) est obligatoire. Ce point est documenté
+dans le \texttt{README.txt}.
+
+\section{Génération d'identifiants de factures uniques}
+
+\textbf{Problème :} Sans table de séquences, le compteur journalier \texttt{NNN}
+dans \texttt{FAC-AAAAMMJJ-NNN} devait être calculé dynamiquement.
+
+\textbf{Solution :} La fonction \texttt{generer\_id\_facture()} parcourt toutes
+les factures existantes pour trouver le numéro maximum de la journée courante,
+puis l'incrémente. Fiable pour des volumes inférieurs à 999 factures par jour.
+
+\section{Concurrence d'écriture}
+
+\textbf{Problème :} Deux caissiers validant une facture simultanément risquent de
+corrompre le fichier JSON par écritures concurrentes.
+
+\textbf{Solution appliquée :} Pour ce projet à usage modéré, la probabilité de
+collision est faible. Une amélioration future consistera à utiliser le drapeau
+\texttt{LOCK\_EX} dans \texttt{file\_put\_contents()}, ou à migrer vers SQLite.
+
+% ╔═══════════════════════════════╗
+% ║  CHAPITRE 7 : CONCLUSION     ║
+% ╚═══════════════════════════════╝
+\chapter{Conclusion et Pistes d'Amélioration}
+
+\section{Bilan du projet}
+
+Ce projet nous a permis de mettre en pratique l'ensemble des concepts du cours de
+Programmation Web PHP : architecture procédurale, gestion de fichiers, sessions,
+sécurité (RBAC, hachage bcrypt), intégration d'une bibliothèque JavaScript externe
+et validation rigoureuse des données.
+
+Le résultat est un système de caisse opérationnel avec :
+\begin{itemize}
+  \item Lecture de codes-barres via caméra (QuaggaJS) ;
+  \item Gestion complète du catalogue produits ;
+  \item Facturation avec calcul de TVA à 18\,\% ;
+  \item Contrôle d'accès à trois niveaux (Caissier / Manager / Super Admin) ;
+  \item Rapports journaliers et mensuels ;
+  \item Impression des factures.
+\end{itemize}
+
+\section{Pistes d'amélioration}
+
+\subsection{Court terme}
+\begin{itemize}
+  \item Ajouter le verrouillage de fichier (\texttt{LOCK\_EX}) pour les environnements concurrents ;
+  \item Export des rapports en PDF côté serveur (FPDF ou DomPDF) ;
+  \item Réinitialisation du mot de passe par courrier électronique.
+\end{itemize}
+
+\subsection{Moyen terme}
+\begin{itemize}
+  \item Migration vers SQLite pour de meilleures performances avec de grands volumes ;
+  \item Module de gestion des fournisseurs et des commandes de réapprovisionnement ;
+  \item Tableau de bord analytique avec graphiques (Chart.js).
+\end{itemize}
+
+\subsection{Long terme}
+\begin{itemize}
+  \item Réécriture en PHP orienté objet avec un framework MVC (Laravel ou Symfony) ;
+  \item Application mobile native pour la lecture de codes-barres ;
+  \item Connexion à une imprimante thermique de tickets de caisse.
+\end{itemize}
+
+\vspace{2cm}
+\begin{center}
+  \rule{0.5\linewidth}{0.5pt}\\[0.5cm]
+  {\itshape << La réussite se forge par l'effort et la persévérance. >>}\\[0.3cm]
+  {\small Université Protestante au Congo -- Faculté de Sciences Informatiques -- 2025-2026}
+\end{center}
+
+\end{document}
